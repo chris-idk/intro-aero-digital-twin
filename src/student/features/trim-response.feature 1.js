@@ -14,7 +14,7 @@ const numericalInputs = {
 };
 
 function hasRequiredCapability(capabilityContext) {
-  const capabilities = capabilityContext?.capabilities;
+  const capabilities = capabilityContext?.capabilities ?? capabilityContext;
 
   if (Array.isArray(capabilities)) {
     return capabilities.some(
@@ -95,7 +95,7 @@ function buildVerificationCases() {
   return [
     {
       id: "numerical",
-      title: "Numerical case",
+      label: "Numerical case",
       inputs: numericalInputs,
       expected: {
         cm: 0.000066866712,
@@ -113,7 +113,7 @@ function buildVerificationCases() {
     },
     {
       id: "behavioral",
-      title: "Behavioral case",
+      label: "Behavioral case",
       inputs: behavioralInputs,
       expected: {
         deltaCm: -0.05585053606,
@@ -130,7 +130,7 @@ function buildVerificationCases() {
     },
     {
       id: "boundary-sanity",
-      title: "Boundary or sanity case",
+      label: "Boundary or sanity case",
       inputs: boundaryInputs,
       expected: {
         cm: 0.04,
@@ -158,32 +158,22 @@ function buildDecision(results) {
     };
   }
 
-  if (results.trimmed && results.tendency === "restoring") {
-    return {
-      question:
-        "At the selected angle of attack, is the simplified pitching-moment model trimmed, and does a small angle-of-attack disturbance create a restoring moment tendency?",
-      interpretation:
-        "The selected condition is trimmed under the specified linear model and the disturbance produces a restoring tendency. This does not establish aircraft safety, controllability, flightworthiness, or validity outside the model limits.",
-      status: "pass",
-    };
-  }
-
-  if (results.tendency === "destabilizing") {
-    return {
-      question:
-        "At the selected angle of attack, is the simplified pitching-moment model trimmed, and does a small angle-of-attack disturbance create a restoring moment tendency?",
-      interpretation:
-        "The selected condition does not provide a restoring disturbance tendency under the specified linear model.",
-      status: "caution",
-    };
-  }
+  const condition = results.trimmed ? "trimmed" : "not trimmed";
+  const trimNote = results.trimAngleDeg === "not available"
+    ? " No unique trim angle is available because Cm_alpha is zero."
+    : "";
 
   return {
     question:
       "At the selected angle of attack, is the simplified pitching-moment model trimmed, and does a small angle-of-attack disturbance create a restoring moment tendency?",
     interpretation:
-      "The specified model gives a neutral disturbance tendency, so no restoring or destabilizing tendency is identified by this analysis.",
-    status: "neutral",
+      `The selected condition is ${condition} under the specified abs(Cm) <= 1e-6 criterion. ` +
+      `The disturbance has a ${results.tendency} tendency in this linear quasi-static model.` +
+      trimNote +
+      " This does not establish aircraft safety, controllability, flightworthiness, or validity outside the model limits.",
+    status: results.tendency === "destabilizing" || !results.trimmed
+      ? "caution"
+      : results.tendency === "restoring" ? "pass" : "neutral",
   };
 }
 
@@ -239,22 +229,7 @@ export const feature = {
       hasRequiredCapability(capabilityContext);
 
     if (!capabilityAvailable) {
-      return {
-        results: [
-          {
-            id: "capability-status",
-            label: "Required capability",
-            value: "not available",
-            unit: "",
-            precision: 0,
-            emphasis: true,
-          },
-        ],
-        verificationCases: [],
-        decision: buildDecision({ capabilityAvailable }),
-        plots: [],
-        scene: null,
-      };
+      throw new TypeError("Stage 3 loads.pitch.component-sum capability v1 is required.");
     }
 
     const calculated = calculateResults(aircraft);
@@ -339,14 +314,9 @@ export const feature = {
         {
           id: "cm-alpha",
           title: "Cm–alpha relationship",
-          xAxis: {
-            label: "Angle of attack",
-            unit: "deg",
-          },
-          yAxis: {
-            label: "Pitching-moment coefficient",
-            unit: "",
-          },
+          xLabel: "Angle of attack (deg)",
+          yLabel: "Pitching-moment coefficient, Cm",
+          currentX: aircraft.angleOfAttackDeg,
           series: [
             {
               id: "cm",
