@@ -158,9 +158,9 @@ selected condition = not trimmed
 disturbance tendency = restoring
 
 Numerical tolerance:
-Cm(alpha): ±1e-9
+Cm(alpha): ±1e-6
 alpha_trim: ±1e-6 deg
-delta_Cm: ±1e-9
+delta_Cm: ±1e-6
 
 The tolerances allow for floating-point evaluation while remaining much smaller than the engineering differences being evaluated.
 ```

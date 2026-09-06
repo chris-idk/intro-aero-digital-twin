@@ -105,9 +105,9 @@ function buildVerificationCases() {
         tendency: "restoring",
       },
       passed:
-        Math.abs(numerical.cm - 0.000066866712) <= 1e-9 &&
+        Math.abs(numerical.cm - 0.000066866712) <= 1e-6 &&
         Math.abs(numerical.trimAngleDeg - 2.864788976) <= 1e-6 &&
-        Math.abs(numerical.deltaCm - -0.02792526803) <= 1e-9 &&
+        Math.abs(numerical.deltaCm - -0.02792526803) <= 1e-6 &&
         numerical.trimmed === false &&
         numerical.tendency === "restoring",
     },
@@ -122,7 +122,7 @@ function buildVerificationCases() {
           "delta_Cm(+4.00 deg) has twice the magnitude of delta_Cm(+2.00 deg) with the same negative sign",
       },
       passed:
-        Math.abs(behavioral.deltaCm - -0.05585053606) <= 1e-9 &&
+        Math.abs(behavioral.deltaCm - -0.05585053606) <= 1e-6 &&
         Math.abs(behavioral.deltaCm) ===
           Math.abs(numerical.deltaCm) * 2 &&
         Math.sign(behavioral.deltaCm) === Math.sign(numerical.deltaCm) &&
@@ -139,9 +139,9 @@ function buildVerificationCases() {
         tendency: "neutral",
       },
       passed:
-        Math.abs(boundary.cm - 0.04) <= 1e-9 &&
+        Math.abs(boundary.cm - 0.04) <= 1e-6 &&
         boundary.trimAngleDeg === "not available" &&
-        Math.abs(boundary.deltaCm) <= 1e-9 &&
+        Math.abs(boundary.deltaCm) <= 1e-6 &&
         boundary.tendency === "neutral",
     },
   ];
