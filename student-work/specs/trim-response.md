@@ -143,24 +143,72 @@ Define all three cases before implementation. Include exact inputs, expected out
 
 Use your Section 8 reference calculation.
 
-```text
-[COMPLETE]
+```
+Inputs:
+Cm0 = 0.04
+Cm_alpha = -0.8 1/rad
+alpha = 2.86 deg
+delta_alpha = +2.00 deg
+
+Expected:
+Cm(alpha) = 0.000066866712, dimensionless
+alpha_trim = 2.864788976 deg
+delta_Cm = -0.02792526803, dimensionless
+selected condition = not trimmed
+disturbance tendency = restoring
+
+Numerical tolerance:
+Cm(alpha): ±1e-9
+alpha_trim: ±1e-6 deg
+delta_Cm: ±1e-9
+
+The tolerances allow for floating-point evaluation while remaining much smaller than the engineering differences being evaluated.
 ```
 
 ### 9.2 Behavioral case
 
 Change one input and state the exact trend or sign that must result.
 
-```text
-[COMPLETE]
+```
+Starting inputs:
+Cm0 = 0.04
+Cm_alpha = -0.8 1/rad
+alpha = 2.86 deg
+delta_alpha = +2.00 deg
+
+Change only:
+delta_alpha = +4.00 deg
+
+Expected behavior:
+delta_Cm should double in magnitude while keeping the same negative sign.
+
+Expected:
+delta_Cm(+2.00 deg) = -0.02792526803
+delta_Cm(+4.00 deg) = -0.05585053606
+
+The disturbance tendency should remain restoring because Cm_alpha remains negative and the disturbance remains positive.
 ```
 
 ### 9.3 Boundary or sanity case
 
 Use an informative boundary such as zero slope, zero disturbance, or the trim condition. State the exact behavior expected and why division by zero or a false physical claim must not occur.
 
-```text
-[COMPLETE]
+```
+Inputs:
+Cm0 = 0.04
+Cm_alpha = 0 1/rad
+alpha = 2.86 deg
+delta_alpha = +2.00 deg
+
+Expected:
+Cm(alpha) = 0.04, dimensionless
+alpha_trim = not available
+delta_Cm = 0, dimensionless
+disturbance tendency = neutral
+
+Changing angle of attack must not change Cm because Cm_alpha = 0.
+No unique trim angle exists, so the implementation must not divide by zero or return an infinite trim angle.
+The disturbance is neutral because delta_Cm = 0.
 ```
 
 ## 10. Feature Requirements
@@ -195,8 +243,8 @@ Do not modify any existing file.
 
 In one or two sentences, state what decision the completed feature will support and what it cannot establish.
 
-```text
-[COMPLETE]
+```
+The feature supports a decision on whether the selected condition is trimmed under the simplified linear Cm-alpha model and whether a small angle-of-attack disturbance produces a restoring or destabilizing moment tendency. It cannot establish aircraft safety, controllability, flightworthiness, or behavior outside the model's linear and quasi-static validity limits.
 ```
 
 ---
